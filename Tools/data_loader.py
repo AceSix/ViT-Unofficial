@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 15:30:52
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-24 09:53:40
+###   @LastEditTime: 2020-12-24 18:25:47
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -37,6 +37,8 @@ class data_iterator(object):
             img_tensor = img_tensor/255.0
             if tf.shape(img_tensor)[-1]==1:
                 img_tensor = tf.repeat(img_tensor, [3], axis=-1)
+            if tf.shape(img_tensor)[-1]>3:
+                img_tensor = img_tensor[...,:3]
             label = tf.convert_to_tensor([[int(label)]])
             return img_tensor[tf.newaxis, ...], label
         except:
@@ -52,5 +54,6 @@ class data_iterator(object):
             images.append(image)
             labels.append(label)
         image_batch = tf.concat(images, axis=0)
+        image_batch = tf.image.per_image_standardization(image_batch)
         label_batch = tf.concat(labels, axis=0)
         return image_batch, label_batch
