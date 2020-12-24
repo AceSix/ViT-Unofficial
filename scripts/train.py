@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-24 09:59:25
+###   @LastEditTime: 2020-12-24 10:35:13
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 # -*- coding: utf-8 -*-
@@ -12,6 +12,7 @@ import os
 
 import numpy as np
 import tensorflow as tf
+import datetime
 
 from Tools.data_loader import data_iterator
 from Tools.logger import Logger
@@ -29,7 +30,8 @@ class Trainer(object):
         os.makedirs(self.save_dir, exist_ok=True)
         os.makedirs(self.checkpoint_dir, exist_ok=True)
 
-        self.logger = Logger(os.path.join(self.save_dir, 'record.txt'))
+        timeStr = datetime.datetime.strftime(datetime.datetime.now(),'%Y-%m-%d_%H:%M:%S')
+        self.logger = Logger(os.path.join(self.save_dir, f'record_{timeStr}.txt'))
         self.logger.log_param(config)
 
     def build_model(self):
@@ -86,9 +88,10 @@ class Trainer(object):
                         test_step(images, labels)
 
                     self.model.save_weights(os.path.join(self.checkpoint_dir, f'iter-{i}'))
-                    template = '[Iter]-[{}]-[Loss]-[{}]-[Accuracy]-[{}]-[Test Loss]-[{}]-[Test Accuracy]-[{}]'
-                    print (template.format(i,
-                           train_loss.result(),
+                    timeStr = datetime.datetime.strftime(datetime.datetime.now(),'%Y-%m-%d %H:%M:%S')
+                    template = '[{}]-[Iter]-[{}]-[Loss]-[{:.2f}]-[Accuracy]-[{:.2f}]-[Test Loss]-[{:.2f}]-[Test Accuracy]-[{:.2f}]'
+                    print (template.format(timeStr, i,
+                           train_loss.result().numpy(),
                            train_accuracy.result()*100,
                            test_loss.result(),
                            test_accuracy.result()*100))

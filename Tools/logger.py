@@ -1,15 +1,14 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \template_tf\Tools\logger.py
+###   @FilePath: \ViT-Unofficial\Tools\logger.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 16:29:20
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-23 16:49:04
+###   @LastEditTime: 2020-12-24 10:35:30
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
 import datetime
-import prettytable as pt
 
 class Logger(object):
     def __init__(self, path):
@@ -30,8 +29,8 @@ class Logger(object):
     def record(self, **args):
         with open(self.path,'a+') as logf:
             timeStr = datetime.datetime.strftime(datetime.datetime.now(),'%Y-%m-%d %H:%M:%S')
-            text = "[timeStr]"
+            text = f"[{timeStr}]"
             for key in args.keys():
-                text += f"-[{key}]-[{args[key]}]"
+                text += f"-[{key}]-[{round(float(args[key]),4)}]"
             text += "\n"
             logf.writelines(text)
