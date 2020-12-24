@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-24 10:35:13
+###   @LastEditTime: 2020-12-24 16:13:11
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 # -*- coding: utf-8 -*-
@@ -39,7 +39,7 @@ class Trainer(object):
         package  = __import__('models.'+config.model_name, fromlist=True)
         model_object  = getattr(package, config.model_name)
 
-        self.model = model_object(config.dim, config.num_classes, config.depth, config.image_size, config.patch_size)
+        self.model = model_object(config.dim, config.num_classes, config.depth, config.max_int)
         
     def train(self):
         config = self.config
@@ -87,7 +87,8 @@ class Trainer(object):
                         images, labels = self.test_iter.get()
                         test_step(images, labels)
 
-                    self.model.save_weights(os.path.join(self.checkpoint_dir, f'iter-{i}'))
+                    if i%(10*config.checkpoint)==0:
+                        self.model.save_weights(os.path.join(self.checkpoint_dir, f'iter-{i}'))
                     timeStr = datetime.datetime.strftime(datetime.datetime.now(),'%Y-%m-%d %H:%M:%S')
                     template = '[{}]-[Iter]-[{}]-[Loss]-[{:.2f}]-[Accuracy]-[{:.2f}]-[Test Loss]-[{:.2f}]-[Test Accuracy]-[{:.2f}]'
                     print (template.format(timeStr, i,
