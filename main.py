@@ -1,9 +1,9 @@
 ###################################################################
-###   @FilePath: \ViT\main.py
+###   @FilePath: \ViT-Unofficial\main.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-23 17:16:40
+###   @LastEditTime: 2020-12-24 09:59:39
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 # -*- coding: utf-8 -*-
@@ -30,6 +30,9 @@ parser.add_argument('--test_label', type=str, default='', help='the testing labe
 parser.add_argument('--log_dir', type=str, default='./logs', help='the testing label path')
 parser.add_argument('--model_name', type=str, default='ViT', help='model used for training, cap sensitive')
 parser.add_argument('--num_classes', type=int, default=1000, help='the num of classes which your task should classify')
+parser.add_argument('--batch_size', type=int, default=4, help='the num of classes which your task should classify')
+parser.add_argument('--image_size', type=int, default=512, help='the size to which images are padded')
+parser.add_argument('--patch_size', type=int, default=16, help='the size to which images are padded')
 parser.add_argument('--learning_rate', type=float, default=1e-4, help='')
 parser.add_argument('--max_iters', type=int, default=2000000, help='')
 parser.add_argument('--checkpoint', type=int, default=2000, help='')

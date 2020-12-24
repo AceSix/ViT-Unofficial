@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \ViT\scripts\train.py
+###   @FilePath: \ViT-Unofficial\scripts\train.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-23 20:53:04
+###   @LastEditTime: 2020-12-24 09:59:25
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 # -*- coding: utf-8 -*-
@@ -19,8 +19,8 @@ from Tools.logger import Logger
 class Trainer(object):
     def __init__(self, config):
         self.config = config
-        self.train_iter = data_iterator(config.train_label, config.train_folder)
-        self.test_iter = data_iterator(config.test_label, config.test_folder)
+        self.train_iter = data_iterator(config.train_label, config.train_folder, config.image_size)
+        self.test_iter = data_iterator(config.test_label, config.test_folder, config.image_size)
 
         self.save_dir = os.path.join(config.log_dir, config.version)
         self.checkpoint_dir = os.path.join(self.save_dir, 'checkpoints')
@@ -37,7 +37,7 @@ class Trainer(object):
         package  = __import__('models.'+config.model_name, fromlist=True)
         model_object  = getattr(package, config.model_name)
 
-        self.model = model_object(config.dim, config.num_classes, config.depth)
+        self.model = model_object(config.dim, config.num_classes, config.depth, config.image_size, config.patch_size)
         
     def train(self):
         config = self.config
@@ -53,7 +53,8 @@ class Trainer(object):
             test_loss = tf.keras.metrics.Mean(name='test_loss')
             test_accuracy = tf.keras.metrics.SparseCategoricalAccuracy(name='test_accuracy')
 
-            @tf.function(experimental_relax_shapes=True)
+            # @tf.function(experimental_relax_shapes=True)
+            @tf.function()
             def train_step(images, labels):
                 with tf.GradientTape() as tape:
                     predictions = self.model(images)
@@ -64,7 +65,8 @@ class Trainer(object):
                 train_loss(loss)
                 train_accuracy(labels, predictions)
 
-            @tf.function(experimental_relax_shapes=True)
+            # @tf.function(experimental_relax_shapes=True)
+            @tf.function()
             def test_step(images, labels):
                 predictions = self.model(images)
                 t_loss = loss_object(labels, predictions)
@@ -75,7 +77,7 @@ class Trainer(object):
             self.logger.log_text("Start training...\n")
             for i in range(config.max_iters):
 
-                images, labels = self.train_iter.get()
+                images, labels = self.train_iter.get_batch(config.batch_size)
                 train_step(images, labels)
 
                 if i%config.checkpoint==0:

@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \ViT\models\ViT.py
+###   @FilePath: \ViT-Unofficial\models\ViT.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:26
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-23 21:00:38
+###   @LastEditTime: 2020-12-24 09:58:48
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -53,9 +53,9 @@ class Encoder(Model):
         return y
     
 class ViT(Model):
-    def __init__(self, dim, fields, depth):
+    def __init__(self, dim, fields, depth, image_size, patch_size):
         super(ViT, self).__init__()
-        self.PE = PositionEmbedding(dim)
+        self.PE = PositionEmbedding(dim, max_int=image_size//patch_size+1)
         self.FC = Dense(dim, activation='relu')
         self.encoder = tf.keras.Sequential()
         for i in range(depth):
@@ -65,10 +65,12 @@ class ViT(Model):
         self.out.add(Dense(dim, activation='relu'))
         self.out.add(Dense(fields, activation='softmax'))
 
+        self.pc = patch_size
+
     def call(self, x):
         patches = tf.image.extract_patches(images=x,
-                           sizes=[1, 16, 16, 1],
-                           strides=[1, 16, 16, 1],
+                           sizes=[1, self.pc, self.pc, 1],
+                           strides=[1, self.pc, self.pc, 1],
                            rates=[1, 1, 1, 1],
                            padding='VALID')
         pose_emb = self.PE(patches)
