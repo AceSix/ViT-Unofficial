@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:26
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-24 09:58:48
+###   @LastEditTime: 2020-12-24 16:01:01
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -51,10 +51,14 @@ class Encoder(Model):
         y_ = self.LN2(y)
         y = self.MLP(y_) + y
         return y
-    
+
+
 class ViT(Model):
-    def __init__(self, dim, fields, depth, image_size, patch_size):
+    def __init__(self, dim, fields, depth, image_size, patch_size, ckpt='./resnet50_weights_tf_dim_ordering_tf_kernels_notop.h5'):
         super(ViT, self).__init__()
+        self.CNN = tf.keras.applications.ResNet50(include_top=False, 
+                                            weights=ckpt, 
+                                            classes=1000)
         self.PE = PositionEmbedding(dim, max_int=image_size//patch_size+1)
         self.FC = Dense(dim, activation='relu')
         self.encoder = tf.keras.Sequential()
@@ -68,14 +72,11 @@ class ViT(Model):
         self.pc = patch_size
 
     def call(self, x):
-        patches = tf.image.extract_patches(images=x,
-                           sizes=[1, self.pc, self.pc, 1],
-                           strides=[1, self.pc, self.pc, 1],
-                           rates=[1, 1, 1, 1],
-                           padding='VALID')
-        pose_emb = self.PE(patches)
+        features = self.CNN(x)
+        pose_emb = self.PE(features)
         
-        patches = tf.reshape(patches, [tf.shape(patches)[0],-1,tf.shape(patches)[-1]])
+        b,h,w,c = tf.shape(features)
+        patches = tf.reshape(features, [b,h*w,c])
         img_emb = self.FC(patches)
         
         embedding = img_emb + pose_emb
