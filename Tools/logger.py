@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \ViT-Unofficial\Tools\logger.py
+###   @FilePath: \GarNet\Tools\logger.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 16:29:20
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-24 10:35:30
+###   @LastEditTime: 2020-12-25 10:47:04
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -31,6 +31,6 @@ class Logger(object):
             timeStr = datetime.datetime.strftime(datetime.datetime.now(),'%Y-%m-%d %H:%M:%S')
             text = f"[{timeStr}]"
             for key in args.keys():
-                text += f"-[{key}]-[{round(float(args[key]),4)}]"
-            text += "\n"
-            logf.writelines(text)
+                text += "-[{}]-[{:3f}]".format(key, args[key])
+            logf.writelines(text + "\n")
+        return text

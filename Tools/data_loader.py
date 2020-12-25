@@ -1,59 +1,49 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \ViT-Unofficial\Tools\data_loader.py
+###   @FilePath: \GarNet\Tools\data_loader.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 15:30:52
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-24 18:25:47
+###   @LastEditTime: 2020-12-25 16:10:38
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
 import os
-import random
-import numpy as np
-import tensorflow as tf
+import torch
+import torch.utils.data as data
 
+from PIL import Image
+from Tools.utils import train_trans, test_trans
+import joblib
 
-class data_iterator(object):
-    def __init__(self, label_path, image_dir, pad_size=384):
-        self.dataset = []
-        with open(label_path) as f:
-            lines = f.readlines()
-        for line in lines:
-            self.dataset.append(line.strip().split(' '))
-        self.image_dir = image_dir
-        self.pad_size = pad_size
+def load_image(path, trans):
+    image = Image.open(path)
+    # w,h = image.size
+    # wh = max(w,h)
+    # image = transforms.Pad((0,0,wh-w, wh-h), fill=0, padding_mode='constant')(image)
+    return trans(image)
 
-        random.shuffle(self.dataset)
-        self.data_iter = iter(self.dataset)
-    
-    def get(self):
-        try:
-            image_path, label = next(self.data_iter)
-            path = os.path.join(self.image_dir, image_path)
-            img_raw = tf.io.read_file(path)
-            img_tensor = tf.image.decode_image(img_raw, dtype=tf.float32)
-            img_tensor = tf.image.resize_with_pad(img_tensor, self.pad_size, self.pad_size)
-            img_tensor = img_tensor/255.0
-            if tf.shape(img_tensor)[-1]==1:
-                img_tensor = tf.repeat(img_tensor, [3], axis=-1)
-            if tf.shape(img_tensor)[-1]>3:
-                img_tensor = img_tensor[...,:3]
-            label = tf.convert_to_tensor([[int(label)]])
-            return img_tensor[tf.newaxis, ...], label
-        except:
-            random.shuffle(self.dataset)
-            self.data_iter = iter(self.dataset)
-            image, label = self.get()
-            return image, label
+class Garbage(data.Dataset):
+    def __init__(self, data, path, trans):
+        self.dataset = data
+        self.path = path
+        self.trans = trans
 
-    def get_batch(self, batch_size):
-        images, labels = [],[]
-        for _ in range(batch_size):
-            image, label = self.get()
-            images.append(image)
-            labels.append(label)
-        image_batch = tf.concat(images, axis=0)
-        image_batch = tf.image.per_image_standardization(image_batch)
-        label_batch = tf.concat(labels, axis=0)
-        return image_batch, label_batch
+    def __getitem__(self, index):
+        name, label = self.dataset[index]
+        image = load_image(os.path.join(self.path, name), self.trans)
+        label = torch.LongTensor([int(label)])
+        return image, label
+
+    def __len__(self):
+            return len(self.dataset)
+
+def loadNsplit(path, image_size):
+    train = joblib.load( 'train.pkl')
+    test = joblib.load( 'test.pkl')
+    train_text = train
+    test_text = test
+    print(f"A total of {len(train_text)} training samples\nA total of {len(test_text)} testing samples")
+    train_set = Garbage(train_text, path, train_trans(image_size))
+    test_set = Garbage(test_text, path, test_trans(image_size))
+    return train_set, test_set
