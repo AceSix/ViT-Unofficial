@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-24 19:23:03
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-25 13:52:50
+###   @LastEditTime: 2020-12-25 22:07:40
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -70,7 +70,7 @@ class Precision(object):
 
     def add(self, pre_tensor, trg_tensor):
         pred = pre_tensor.detach().cpu().numpy().argmax(-1)
-        trg = trg_tensor.detach().cpu().numpy()
+        trg = trg_tensor.squeeze().detach().cpu().numpy()
         right_num = (pred==trg).sum()
         self.true_num += right_num
         self.all += pre_tensor.shape[0]

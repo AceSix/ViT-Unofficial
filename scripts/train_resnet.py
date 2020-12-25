@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-24 19:05:28
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-25 11:35:54
+###   @LastEditTime: 2020-12-25 22:46:21
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 import os
@@ -37,7 +37,7 @@ class Trainer(object):
 
         code_transfer("./", self.code_dir, ['run.sh'])
         code_transfer("./scripts", self.code_dir, [f'train_{config.script}.py'])
-        code_transfer("./models", self.code_dir, ['ViT.py', 'ResNet.py'])
+        code_transfer("./models", self.code_dir, ['Blocks.py'])
         code_transfer("./Tools", self.code_dir, ['data_loader.py', 'logger.py', 'utils.py'])
 
         self.resnet = ResNet_predictor(config.num_classes).cuda()
@@ -61,7 +61,7 @@ class Trainer(object):
                 image, label = image.cuda(), label[:,0].cuda()
     
                 prediction = self.resnet(image)
-                loss = criterion(prediction, label)
+                loss = criterion(prediction, label)*config.scale
     
                 train_metric.add(prediction, label)
                 loss_metric.add(loss)

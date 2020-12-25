@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-07 19:25:12
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-25 16:12:39
+###   @LastEditTime: 2020-12-25 22:56:06
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 # -*- coding: utf-8 -*-
@@ -32,8 +32,8 @@ class VT(nn.Module):
         y = self.splitNfc(x)
         y = pose_embed(y, self.pose_dim)
 
-        b, h, w, c = y.shape
-        y_col = y.reshape(b, h*w, c)
+        b, c, h, w = y.shape
+        y_col = y.reshape(b, c, h*w).transpose(2,1).contiguous()
 
         cls_token = self.cls.repeat([y_col.shape[0],1,1])
         y_col = torch.cat([cls_token, y_col], dim=1)
