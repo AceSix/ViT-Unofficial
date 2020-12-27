@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-24 19:23:03
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-25 22:07:40
+###   @LastEditTime: 2020-12-27 19:15:00
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -25,22 +25,20 @@ normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
 
 def train_trans(image_size):
     trans = transforms.Compose([
-                transforms.RandomAffine(15),
-                transforms.RandomRotation(15),
-                transforms.RandomResizedCrop(image_size, scale=(0.8, 1.0)),
-                transforms.ColorJitter(0.1,0.1,0.1),
-                transforms.RandomPerspective(),
-                # transforms.GaussianBlur(7, sigma=(0.1, 2.0)),
+                # transforms.RandomRotation(5),
+                transforms.Resize(int(image_size*1.05)),
+                transforms.RandomCrop(image_size),
+                # transforms.ColorJitter(0.1,0.1,0.1),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 normalize,
-                transforms.RandomErasing(),
             ])
     return trans
 
 def test_trans(image_size):
     trans = transforms.Compose([
-                transforms.RandomResizedCrop(image_size, scale=(0.9, 1.0)),
+                transforms.Resize(int(image_size*1.05)),
+                transforms.CenterCrop(image_size),
                 transforms.ToTensor(),
                 normalize,
             ])

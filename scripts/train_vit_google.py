@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \GarNet\scripts\train_vit.py
+###   @FilePath: \GarNet\scripts\train_vit_google.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-24 19:05:28
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-26 12:18:05
+###   @LastEditTime: 2020-12-26 15:07:36
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 import os
@@ -13,7 +13,7 @@ import datetime
 import torch
 from torchvision.utils import save_image
 
-from models.ViT import ViT
+from models.ViT_google import ViT_google, VisionTransformer
 from Tools.data_loader import loadNsplit
 from Tools.logger import Logger
 from Tools.utils import code_transfer, plot_loss_curve, Precision, Matric
@@ -40,8 +40,15 @@ class Trainer(object):
         code_transfer("./models", self.code_dir, ['ViT.py'])
         code_transfer("./Tools", self.code_dir, ['data_loader.py', 'logger.py', 'utils.py'])
 
-        self.model = ViT(dim_hid=config.dim, dim_KQ=config.dim, cls_num=config.num_classes, 
-                         patch=config.patch_size, stride=config.patch_size//2, depth=config.depth).cuda()
+        self.model = ViT_google(384,config.num_classes,"imagenet21k+imagenet2012_ViT-B_16.pth").cuda()
+
+        # ViT = VisionTransformer((384,384))
+        # ViT.load_state_dict(torch.load("imagenet21k+imagenet2012_ViT-B_16.pth")['state_dict'])
+        # self.model = torch.nn.Sequential(
+        #     ViT,
+        #     torch.nn.Linear(1000, config.num_classes),
+        #     torch.nn.Sigmoid()
+        # ).cuda()
         self.config = config
 
         

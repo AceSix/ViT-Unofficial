@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \GarNet\scripts\train_vit.py
+###   @FilePath: \GarNet\scripts\train_transfer.py
 ###   @Author: Ziang Liu
-###   @Date: 2020-12-24 19:05:28
+###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-26 12:18:05
+###   @LastEditTime: 2020-12-27 19:23:22
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 import os
@@ -37,20 +37,29 @@ class Trainer(object):
 
         code_transfer("./", self.code_dir, ['run.sh'])
         code_transfer("./scripts", self.code_dir, [f'train_{config.script}.py'])
-        code_transfer("./models", self.code_dir, ['ViT.py'])
         code_transfer("./Tools", self.code_dir, ['data_loader.py', 'logger.py', 'utils.py'])
 
-        self.model = ViT(dim_hid=config.dim, dim_KQ=config.dim, cls_num=config.num_classes, 
-                         patch=config.patch_size, stride=config.patch_size//2, depth=config.depth).cuda()
         self.config = config
 
+    def build_model(self):
+        config = self.config
+        if config.model_name=='ViT':
+            code_transfer("./models", self.code_dir, ['ViT_google.py'])
+            from models.ViT_google import ViT_google
+            self.model = ViT_google(image_size=config.image_size, num_classes=config.num_classes).cuda()
+        elif config.model_name=='ResNeXt':
+            code_transfer("./models", self.code_dir, ['ResNeXt.py'])
+            from models.ResNeXt import ResNeXt_pretrained
+            self.model = ResNeXt_pretrained(nlabels=config.num_classes).cuda()
         
     def train(self):
+        self.build_model()
         config = self.config
         losses = {'train':[], 'test':[]}
-        optimizer1 = torch.optim.Adam(self.model.parameters(), lr=config.learning_rate)
-        scheduler1 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer1, T_max=200)
-        criterion = torch.nn.CrossEntropyLoss()
+        lr_preset = self.warmup_lr()
+        optimizer = torch.optim.SGD(self.model.parameters(), lr=self.config.learning_rate, momentum=0.9,
+                                weight_decay=0.0005, nesterov=True)
+        criterion = torch.nn.CrossEntropyLoss().cuda()
 
         train_metric = Precision()
         loss_metric = Matric()
@@ -67,9 +76,9 @@ class Trainer(object):
                 train_metric.add(prediction, label)
                 loss_metric.add(loss)
 
-                optimizer1.zero_grad()
+                optimizer.zero_grad()
                 loss.backward()
-                optimizer1.step()
+                optimizer.step()
 
                 if iters%config.checkpoint==0:
                     record = self.logger.record(Iter=iters, 
@@ -84,10 +93,11 @@ class Trainer(object):
                     plot_loss_curve(os.path.join(self.save_dir, 'loss.jpg'), losses)
                     train_metric.reset()
                     loss_metric.reset()
-
                 iters+=1
             
-            scheduler1.step()
+            for g in optimizer.param_groups:
+                g['lr'] = lr_preset[i+1]
+            print(f"Changing learning rate to {lr_preset[i+1]}")
     
     def test(self):
         test_metric = Precision()
@@ -104,3 +114,11 @@ class Trainer(object):
                 
         self.model.train()
         return test_metric.result()
+
+    def warmup_lr(self):
+        lrs = []
+        for j in range(self.config.max_epoch):
+            lrs.append(self.config.learning_rate*0.95)
+        return lrs
+
+        

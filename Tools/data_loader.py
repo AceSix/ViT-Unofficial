@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 15:30:52
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-25 16:10:38
+###   @LastEditTime: 2020-12-27 17:22:33
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -41,9 +41,9 @@ class Garbage(data.Dataset):
 def loadNsplit(path, image_size):
     train = joblib.load( 'train.pkl')
     test = joblib.load( 'test.pkl')
-    train_text = train
-    test_text = test
-    print(f"A total of {len(train_text)} training samples\nA total of {len(test_text)} testing samples")
+    train_text = train + test[:len(test)//2]
+    test_text = test[len(test)//2:]
+    print(f"A total of {len(train_text)+len(test_text)//2} training samples\nA total of {len(test_text)//2} testing samples")
     train_set = Garbage(train_text, path, train_trans(image_size))
     test_set = Garbage(test_text, path, test_trans(image_size))
     return train_set, test_set
