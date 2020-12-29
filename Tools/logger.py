@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 16:29:20
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-25 10:47:04
+###   @LastEditTime: 2020-12-25 22:29:38
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -19,8 +19,9 @@ class Logger(object):
             timeStr = datetime.datetime.strftime(datetime.datetime.now(),'%Y-%m-%d %H:%M:%S')
             logf.writelines("[%s]-[Config]\n"%(timeStr))
             for i,item in enumerate(config.__dict__.items()):
-                text = "[%d]-[parameters] %s--%s\n"%(i,item[0],str(item[1]))
-                logf.writelines(text)
+                text = "[%d]-[parameters] %s--%s"%(i,item[0],str(item[1]))
+                print(text)
+                logf.writelines(text+'\n')
 
     def log_text(self, text):
         with open(self.path,'a+') as logf:

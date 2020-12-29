@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-24 19:23:03
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-25 13:52:50
+###   @LastEditTime: 2020-12-29 09:55:01
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -25,7 +25,7 @@ normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
 
 def train_trans(image_size):
     trans = transforms.Compose([
-                transforms.RandomAffine(15),
+                transforms.RandomAffine(15, translate=(0.1,0.1)),
                 transforms.RandomRotation(15),
                 transforms.RandomResizedCrop(image_size, scale=(0.8, 1.0)),
                 transforms.ColorJitter(0.1,0.1,0.1),
@@ -70,7 +70,7 @@ class Precision(object):
 
     def add(self, pre_tensor, trg_tensor):
         pred = pre_tensor.detach().cpu().numpy().argmax(-1)
-        trg = trg_tensor.detach().cpu().numpy()
+        trg = trg_tensor.squeeze().detach().cpu().numpy()
         right_num = (pred==trg).sum()
         self.true_num += right_num
         self.all += pre_tensor.shape[0]

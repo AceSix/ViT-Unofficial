@@ -3,7 +3,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-25 11:38:11
+###   @LastEditTime: 2020-12-27 15:30:33
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 # -*- coding: utf-8 -*-
@@ -20,17 +20,18 @@ parser.add_argument('--description', type=str, default='training ViT on ImageNet
 # params for model
 parser.add_argument('--dim', type=int, default=256, help='tensor dimensions')
 parser.add_argument('--depth', type=int, default=4, help='number of transformer encoder layers')
+parser.add_argument('--model_name', type=str, default='ViT', help='model used for training, cap sensitive')
 # params for train
 parser.add_argument('--train_folder', type=str, default='../dataset/train_data', help='the training data path')
 parser.add_argument('--log_dir', type=str, default='./logs', help='the testing label path')
-parser.add_argument('--model_name', type=str, default='ViT', help='model used for training, cap sensitive')
 parser.add_argument('--num_classes', type=int, default=43, help='the num of classes which your task should classify')
+parser.add_argument('--scale', type=int, default=16, help='loss scale')
 parser.add_argument('--batch_size', type=int, default=4, help='the num of classes which your task should classify')
 parser.add_argument('--image_size', type=int, default=256, help='the size to which images are padded')
 parser.add_argument('--patch_size', type=int, default=2, help='the size to which images are padded')
 parser.add_argument('--max_int', type=int, default=16, help='the size to which images are padded')
 parser.add_argument('--learning_rate', type=float, default=1e-4, help='')
-parser.add_argument('--max_epoch', type=int, default=20, help='')
+parser.add_argument('--max_epoch', type=int, default=200, help='')
 parser.add_argument('--checkpoint', type=int, default=2000, help='')
 parser.add_argument('--cuda_id', type=int, default=0, help='used cuda device')
 config = parser.parse_args()

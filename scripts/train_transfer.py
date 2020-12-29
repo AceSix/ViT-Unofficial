@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \GarNet\scripts\train_vit.py
+###   @FilePath: \GarNet\scripts\train_transfer.py
 ###   @Author: Ziang Liu
-###   @Date: 2020-12-24 19:05:28
+###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-26 12:18:05
+###   @LastEditTime: 2020-12-29 10:39:27
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 import os
@@ -13,7 +13,6 @@ import datetime
 import torch
 from torchvision.utils import save_image
 
-from models.ViT import ViT
 from Tools.data_loader import loadNsplit
 from Tools.logger import Logger
 from Tools.utils import code_transfer, plot_loss_curve, Precision, Matric
@@ -37,20 +36,36 @@ class Trainer(object):
 
         code_transfer("./", self.code_dir, ['run.sh'])
         code_transfer("./scripts", self.code_dir, [f'train_{config.script}.py'])
-        code_transfer("./models", self.code_dir, ['ViT.py'])
         code_transfer("./Tools", self.code_dir, ['data_loader.py', 'logger.py', 'utils.py'])
 
-        self.model = ViT(dim_hid=config.dim, dim_KQ=config.dim, cls_num=config.num_classes, 
-                         patch=config.patch_size, stride=config.patch_size//2, depth=config.depth).cuda()
         self.config = config
 
+    def build_model(self):
+        config = self.config
+        if config.model_name=='ViT':
+            code_transfer("./models", self.code_dir, ['ViT_google.py'])
+            from models.ViT_google import ViT_google
+            self.model = ViT_google(image_size=config.image_size, num_classes=config.num_classes).cuda()
+        elif config.model_name=='ResNeXt':
+            code_transfer("./models", self.code_dir, ['ResNeXt.py'])
+            from models.ResNeXt import ResNeXt_pretrained
+            self.model = ResNeXt_pretrained(nlabels=config.num_classes).cuda()
+        elif config.model_name=='ViTResNeXt':
+            code_transfer("./models", self.code_dir, ['ViT.py'])
+            from models.ViT import ViT_ResNeXt
+            self.model = ViT_ResNeXt(cls_num=config.num_classes, depth=config.depth).cuda()
         
     def train(self):
+        self.build_model()
         config = self.config
         losses = {'train':[], 'test':[]}
-        optimizer1 = torch.optim.Adam(self.model.parameters(), lr=config.learning_rate)
-        scheduler1 = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer1, T_max=200)
-        criterion = torch.nn.CrossEntropyLoss()
+        lr_preset = self.warmup_lr()
+        optimizer = torch.optim.Adam(
+            [{'params': self.model.backbone.parameters(), 'lr': self.config.learning_rate/2},
+             {'params': self.model.classifier.parameters()}], 
+            lr=self.config.learning_rate, weight_decay=0.0005)
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config.max_epoch)
+        criterion = torch.nn.CrossEntropyLoss().cuda()
 
         train_metric = Precision()
         loss_metric = Matric()
@@ -67,9 +82,9 @@ class Trainer(object):
                 train_metric.add(prediction, label)
                 loss_metric.add(loss)
 
-                optimizer1.zero_grad()
+                optimizer.zero_grad()
                 loss.backward()
-                optimizer1.step()
+                optimizer.step()
 
                 if iters%config.checkpoint==0:
                     record = self.logger.record(Iter=iters, 
@@ -84,10 +99,9 @@ class Trainer(object):
                     plot_loss_curve(os.path.join(self.save_dir, 'loss.jpg'), losses)
                     train_metric.reset()
                     loss_metric.reset()
-
                 iters+=1
             
-            scheduler1.step()
+            scheduler.step()
     
     def test(self):
         test_metric = Precision()
@@ -104,3 +118,13 @@ class Trainer(object):
                 
         self.model.train()
         return test_metric.result()
+
+    def warmup_lr(self):
+        lrs = []
+        tmp = self.config.learning_rate
+        for j in range(self.config.max_epoch):
+            tmp = tmp*0.95
+            lrs.append(tmp)
+        return lrs
+
+        
