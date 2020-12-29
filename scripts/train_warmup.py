@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \undefinede:\AI_Lab\ViT-Unofficial\scripts\train_warmup.py
+###   @FilePath: \GarNet\scripts\train_warmup.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-29 10:52:03
+###   @LastEditTime: 2020-12-27 19:12:42
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 import os

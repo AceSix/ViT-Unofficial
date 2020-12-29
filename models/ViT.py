@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \undefinede:\AI_Lab\ViT-Unofficial\models\ViT.py
+###   @FilePath: \GarNet\models\ViT.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-07 19:25:12
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-29 10:49:08
+###   @LastEditTime: 2020-12-29 17:19:17
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 # -*- coding: utf-8 -*-
@@ -73,13 +73,31 @@ class ViT_block(nn.Module):
         y_col = self.transformer(y_col)
         out = self.FC(y_col[:,0,:])
         return out
-        
+
 class ViT_ResNeXt(nn.Module):
-    def __init__(self, dim=512, cls_num=10, patch=2, depth=1):
+    def __init__(self, dim=512, cls_num=10, patch=2, depth=1, version="resnet50"):
         super(ViT_ResNeXt, self).__init__()
-        resnet = torch.hub.load('pytorch/vision:v0.6.0', 'resnext50_32x4d', pretrained=True)
+        if version=="resnext50_32x4d":
+            model = torch.hub.load('pytorch/vision:v0.6.0', 'resnext50_32x4d', pretrained=True)
+        elif version=="resnext101_32x8d":
+            model = torch.hub.load('pytorch/vision:v0.6.0', 'resnext101_32x8d', pretrained=True)
+        elif version=="resnext101_32x8d_wsl":
+            model = torch.hub.load('facebookresearch/WSL-Images', 'resnext101_32x8d_wsl')
+        elif version=="resnext101_32x16d_wsl":
+            model = torch.hub.load('facebookresearch/WSL-Images', 'resnext101_32x16d_wsl')
+        elif version=="resnext101_32x32d_wsl":
+            model = torch.hub.load('facebookresearch/WSL-Images', 'resnext101_32x32d_wsl')
+        elif version=="resnext101_32x48d_wsl":
+            model = torch.hub.load('facebookresearch/WSL-Images', 'resnext101_32x48d_wsl')
+        elif version=="resnet101":
+            model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet101', pretrained=True)
+        elif version=="resnet152":
+            model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet152', pretrained=True)
+        else:
+            model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet50', pretrained=True)
+            
         self.backbone = nn.Sequential(
-            *list(resnet.children())[:8]
+            *list(model.children())[:8]
         )
         self.classifier = ViT_block(patch, dim, dim, cls_num, depth)
 

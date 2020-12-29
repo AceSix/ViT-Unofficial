@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \undefinede:\AI_Lab\ViT-Unofficial\Tools\utils.py
+###   @FilePath: \GarNet\Tools\utils.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-24 19:23:03
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-29 10:52:20
+###   @LastEditTime: 2020-12-29 09:55:01
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -34,13 +34,13 @@ def train_trans(image_size):
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 normalize,
+                transforms.RandomErasing(),
             ])
     return trans
 
 def test_trans(image_size):
     trans = transforms.Compose([
-                transforms.Resize(int(image_size*1.05)),
-                transforms.CenterCrop(image_size),
+                transforms.RandomResizedCrop(image_size, scale=(0.9, 1.0)),
                 transforms.ToTensor(),
                 normalize,
             ])

@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \undefinede:\AI_Lab\ViT-Unofficial\scripts\train_transfer.py
+###   @FilePath: \GarNet\scripts\train_transfer.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-29 10:51:36
+###   @LastEditTime: 2020-12-29 17:20:27
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 import os
@@ -53,17 +53,16 @@ class Trainer(object):
         elif config.model_name=='ViTResNeXt':
             code_transfer("./models", self.code_dir, ['ViT.py'])
             from models.ViT import ViT_ResNeXt
-            self.model = ViT_ResNeXt(cls_num=config.num_classes, depth=config.depth).cuda()
+            self.model = ViT_ResNeXt(cls_num=config.num_classes, depth=config.depth, version=config.resnet).cuda()
         
     def train(self):
         self.build_model()
         config = self.config
         losses = {'train':[], 'test':[]}
-        lr_preset = self.warmup_lr()
         optimizer = torch.optim.Adam(
-            [{'params': self.model.backbone.parameters(), 'lr': self.config.learning_rate/2},
+            [{'params': self.model.backbone.parameters(), 'lr': self.config.learning_rate/2.},
              {'params': self.model.classifier.parameters()}], 
-            lr=self.config.learning_rate, weight_decay=0.0005)
+            lr=self.config.learning_rate)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=config.max_epoch)
         criterion = torch.nn.CrossEntropyLoss().cuda()
 
@@ -107,14 +106,12 @@ class Trainer(object):
         test_metric = Precision()
         self.model.eval()
 
-        data_loader = torch.utils.data.DataLoader(self.test_data, batch_size=self.config.batch_size, shuffle=True)
+        data_loader = torch.utils.data.DataLoader(self.test_data, batch_size=self.config.test_batch_size, shuffle=True)
         with torch.no_grad():
             for j,(image, label) in enumerate(data_loader):
                 image, label = image.cuda(), label.cuda()
                 prediction = self.model(image)
                 test_metric.add(prediction, label)
-                if j*self.config.batch_size>500:
-                    break
                 
         self.model.train()
         return test_metric.result()
