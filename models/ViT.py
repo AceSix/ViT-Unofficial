@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \GarNet\models\ViT.py
+###   @FilePath: \undefinede:\AI_Lab\ViT-Unofficial\models\ViT.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-07 19:25:12
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-29 09:51:38
+###   @LastEditTime: 2020-12-29 10:49:08
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 # -*- coding: utf-8 -*-

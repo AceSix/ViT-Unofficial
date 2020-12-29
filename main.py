@@ -1,9 +1,9 @@
 ###################################################################
-###   @FilePath: \GarNet\main.py
+###   @FilePath: \undefinede:\AI_Lab\ViT-Unofficial\main.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-27 15:30:33
+###   @LastEditTime: 2020-12-29 10:48:57
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 # -*- coding: utf-8 -*-

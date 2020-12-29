@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \GarNet\scripts\train_transfer.py
+###   @FilePath: \undefinede:\AI_Lab\ViT-Unofficial\scripts\train_transfer.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-23 14:14:25
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-29 10:39:27
+###   @LastEditTime: 2020-12-29 10:51:36
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 import os

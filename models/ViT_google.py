@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \GarNet\models\ViT_google.py
+###   @FilePath: \undefinede:\AI_Lab\ViT-Unofficial\models\ViT_google.py
 ###   @Author: Ziang Liu
 ###   @Date: 2020-12-26 12:54:26
 ###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2020-12-28 17:27:00
+###   @LastEditTime: 2020-12-29 10:50:49
 ###   @Copyright (C) 2020 SJTU. All rights reserved.
 ###################################################################
 
@@ -244,8 +244,7 @@ class ViTResNeXt_google(nn.Module):
         ViT.load_state_dict(torch.load(path)['state_dict'])
         ResNeXt = torch.hub.load('pytorch/vision:v0.6.0', 'resnext50_32x4d', pretrained=True)
         self.backbone = nn.Sequential(
-            ResNeXt,
-            ViT
+            *(list(ResNeXt.children())[:8]+[ViT])
         )
         self.classifier = nn.Sequential(
             torch.nn.Linear(1000, num_classes),
