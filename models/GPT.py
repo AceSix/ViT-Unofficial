@@ -4,7 +4,7 @@
 ###   @Author: Ziang Liu
 ###   @Date: 2021-06-28 23:56:35
 ###   @LastEditors: AceSix
-###   @LastEditTime: 2021-06-29 15:48:22
+###   @LastEditTime: 2021-06-29 16:11:36
 ###   @Copyright (C) 2021 SJTU. All rights reserved.
 ###################################################################
 import torch
@@ -43,7 +43,8 @@ class GPT_Spatial(nn.Module):
 
         self.P_embedding = nn.Conv2d(dim, dim, patch_size, patch_size, 0)
         self.P_deconv = nn.Sequential(
-            nn.ConvTranspose2d(dim, dim, patch_size, 2)
+            nn.Conv2d(dim, dim, 3, 1, 1),
+            nn.ReLU()
         )
         self.S_embedding = nn.Embedding(style_num, dim)
         self.X_embedding = nn.Embedding(max_len, dim)
