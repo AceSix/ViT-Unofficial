@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \GPT-ST\components\Conditional_Generator_gpt.py
+###   @FilePath: \ViT-Unofficial\models\Conditional_Generator_gpt.py
 ###   @Author: Chen Xuanhong
 ###   @Date: 2021-06-29 09:33:17
 ###   @LastEditors: AceSix
-###   @LastEditTime: 2021-06-29 10:47:23
+###   @LastEditTime: 2021-06-29 15:42:05
 ###   @Copyright (C) 2021 SJTU. All rights reserved.
 ###################################################################
 
@@ -14,20 +14,17 @@ from torch import nn
 from torch.nn import init
 from torch.nn import functional as F
 
-from components.ResBlock import ResBlock
-from components.DeConv   import DeConv
-from components.GPT import GPT_Spatial
-from components.Conditional_ResBlock import Conditional_ResBlock
+from models.DeConv   import DeConv
+from models.GPT import GPT_Spatial
 
 class Generator(nn.Module):
     def __init__(
                 self, chn=32,
-                k_size=3,
-                res_num = 5,
-                class_num = 3
+                k_size=3, res_num=5,
+                img_size=256, 
+                class_num=3
                 ):
         super().__init__()
-        padding_size = int((k_size -1)/2)
         self.resblock_list = []
         self.n_class    = class_num
         self.encoder1 = nn.Sequential(
@@ -51,8 +48,8 @@ class Generator(nn.Module):
             nn.LeakyReLU()
         )
 
-        fea_size, res_dim = 512//16, chn * 8
-        self.conditional_GPT = GPT_Spatial(fea_size, res_dim, res_num, class_num)
+        fea_size, res_dim = img_size//16, chn * 8
+        self.conditional_GPT = GPT_Spatial(fea_size, res_dim, res_num, class_num, fea_size)
 
         self.decoder1 = nn.Sequential(
             DeConv(in_channels = chn * 8, out_channels = chn * 8, kernel_size=k_size),
