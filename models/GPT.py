@@ -1,16 +1,15 @@
 # -*- coding:utf-8 -*-
 ###################################################################
-###   @FilePath: \ASMegaGAN\components\GPT.py
+###   @FilePath: \ViT-Unofficial\models\GPT.py
 ###   @Author: Ziang Liu
 ###   @Date: 2021-06-28 23:56:35
-###   @LastEditors: Ziang Liu
-###   @LastEditTime: 2021-06-29 11:20:34
+###   @LastEditors: AceSix
+###   @LastEditTime: 2021-06-29 15:48:22
 ###   @Copyright (C) 2021 SJTU. All rights reserved.
 ###################################################################
 import torch
 from torch import nn
 import numpy as np
-from components.DeConv import DeConv
 
 class Attention(nn.Module):
     def __init__(self, dim, heads=8):
